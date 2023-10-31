@@ -1,0 +1,73 @@
+package APIday1;
+
+import org.testng.annotations.Test;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+public class Day1 {
+    @Test
+    public void getUsers() {
+        RestAssured.baseURI = "https://reqres.in/api";
+        Response response =
+                given()
+                .when()
+                .get("/users/2"); // Added a forward slash before the endpoint
+
+        response.then().statusCode(200);
+        response.then().body("data.id", equalTo(2));
+        response.then().body("data.email", equalTo("janet.weaver@reqres.in"));
+        response.then().body("data.first_name", equalTo("Janet"));
+        response.then().body("data.last_name", equalTo("Weaver"));
+        response.then().body("data.avatar", equalTo("https://reqres.in/img/faces/2-image.jpg"));
+        response.then().log().all();
+    }
+
+    @Test
+    public void testCreateUser() {
+        RestAssured.baseURI = "https://reqres.in/api";
+
+        String requestBody = "{\"name\": \"John Doe\", \"job\": \"Software Engineer\"}";
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .post("/users");
+
+        response.then().statusCode(201);
+        response.then().body("name", equalTo("John Doe"));
+        response.then().body("job", equalTo("Software Engineer"));
+    }
+
+    @Test
+    public void updateUser() {
+        RestAssured.baseURI = "https://reqres.in/api";
+
+        String requestBody = "{\"name\": \"Rasmila Khatri\", \"job\": \"Software Engineer\"}";
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .put("/users/2"); // Added a forward slash before the endpoint
+
+        response.then().statusCode(200);
+        response.then().body("name", equalTo("Rasmila Khatri"));
+        response.then().body("job", equalTo("Software Engineer"));
+    }
+
+    @Test
+    public void deleteUsers() {
+        RestAssured.baseURI = "https://reqres.in/api";
+
+        Response response = given()
+                .when()
+                .delete("/users/2"); // Added a forward slash before the endpoint
+
+        response.then().statusCode(204);
+    }
+}
